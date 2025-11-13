@@ -8,6 +8,10 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
+import AddEvent from "./pages/AddEvent";
+import EditEvent from "./pages/EditEvent";
+import EventList from "./pages/EventList";
+import EventDetail from "./pages/EventDetail";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
@@ -23,6 +27,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/add-event" element={<PrivateRoute><AddEvent /></PrivateRoute>}></Route>
+           <Route path="/edit-event/:id" element={<PrivateRoute><EditEvent /></PrivateRoute>}></Route>
+          <Route path='/events' element={<EventList />}></Route>
+          <Route path='/events/:id' element={<EventDetail />}></Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>

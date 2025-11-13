@@ -1,52 +1,130 @@
-import React from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import Layout from "../components/Layout"
-import SportCard from "../components/SportCard"
-import Navbar from "../components/Navbar";
-
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import Layout from "../components/Layout";
+// import SportCard from "../components/SportCard";
+// import Navbar from "../components/Navbar";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+import EventCard from "../components/EventCard";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-    const {currentUser, logout} = useAuth();
+  const { currentUser } = useAuth();
+  const [createdEvents, setCreatedEvents] = useState([]);
+  const [joinedEvents, setJoinedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("created");
+  const navigate = useNavigate();
 
-    // async function handleLogout() {
-    //     try{
-    //         await logout();
-    //     } catch(err){
-    //         console.error("Logout failed: ", err)
-    //     }
-    // }
-  
-    // const cards = new Array(6).fill(0).map((_,i) => ({title: `Event ${i+1}`, subtitle: "Saturday 5PM"}));
+  useEffect(() => {
+    async function fetchData() {
+      if (!currentUser) return;
+
+      try {
+        //fetch events for cratedEvents
+        const createdQuery = query(
+          collection(db, "events"),
+          where("createdBy", "==", currentUser.uid)
+        );
+        const createdSnap = await getDocs(createdQuery);
+        const created = createdSnap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+
+        //fetch events for joinedEvents
+        const joinedQuery = query(
+          collection(db, "events"),
+          where("attendees", "array-contains", currentUser.uid)
+        );
+        const joinedSnap = await getDocs(joinedQuery);
+        const joined = joinedSnap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+
+        setCreatedEvents(created);
+        setJoinedEvents(joined);
+      } catch (err) {
+        console.error("Error fetching dashbord data: ", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [currentUser]);
+
+  if (loading)
+    return (
+      <p className="text-center text-gray-500 mt-8">Loading Dashboard...</p>
+    );
 
   return (
-    <div className="min-h-screen bg-surface">
-      <Navbar />
+    <Layout>
+      <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6">
+        {/* <h1 className="text-2xl font-bold text-primary mb-6">My Dashboard</h1> */}
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <h2 className="text-2xl font-heading mb-4">Dashboard</h2>
-        <p className="text-gray-700">
-          Signed in as: <span className="font-semibold">{currentUser?.email}</span>
-        </p>
-        <p className="mt-4">Your dashboard content will appear here.</p>
-      </div>
+        <div className="flex w-max rounded-md bg-gray-200 overflow-hidden">
+          <button
+            onClick={() => setActiveTab("created")}
+            className={`px-6 py-2 font-medium transition ${
+              activeTab === "created"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } rounded-l-md`}
+          >
+            Created
+          </button>
+          <button
+            onClick={() => setActiveTab("joined")}
+            className={`px-6 py-2 font-medium transition ${
+              activeTab === "joined"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            } rounded-r-md`}
+          >
+            Joined
+          </button>
+        </div>
+
+        
+        <h1 className="text-xl text-primary font-bold mb-0">
+    {activeTab === "created" ? "My Created Events" : "My Joined Events"}
+  </h1>
+
+  {activeTab === "created" && (
+    <div className="mb-4">
+      <button
+        onClick={() => navigate("/add-event")}
+        className="bg-primary text-white px-3 py-1 rounded hover:bg-blue-600"
+      >
+        + Add Event
+      </button>
     </div>
+  )}
 
-    // <Layout>
-    //   <div className='max-w-6xl mx-auto px-4 py-6'>
-    //     <h2 className='text-2xl font-headingmb-4'> Upcoming Matches</h2>
-    //       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-    //         {cards.map((c,i) => <SportCard key={i}{...c} />)}
-    //       </div>
-    //   </div>
-    // </Layout>
-
-
-    // <div>
-    //   <h1>Dashboard</h1>
-    //   <p>Signed in as: {currentUser?.email}</p>
-    //   <button onClick={handleLogout}>Log Out</button>
-    // </div>
+       
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {activeTab === "created" ? (
+            createdEvents.length > 0 ? (
+              createdEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))
+            ) : (
+              <p className="text-gray-500 text-center col-span-full">
+                You haven’t created any events yet.
+              </p>
+            )
+          ) : joinedEvents.length > 0 ? (
+            joinedEvents.map((event) => <EventCard key={event.id} event={event} />)
+          ) : (
+            <p className="text-gray-500 text-center col-span-full">
+              You haven’t joined any events yet.
+            </p>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 }
-
-

@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, } from "react";
 import { auth, db } from "../firebase";
+import { addLog } from "../utils/logs";
+import { serverTimestamp } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -25,7 +27,7 @@ export function AuthProvider({ children }) {
     await setDoc(doc(db, "users", uid), {
       email,
       role: "user",
-      createdAt: Date.now(),
+      createdAt:serverTimestamp(),
       ...extraProfile
     });
     await signOut(auth);
@@ -33,8 +35,21 @@ export function AuthProvider({ children }) {
     return userCred;
   }
 
-  function login(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
+  async function login(email, password) {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+
+    try{
+      await addLog({
+        actorUid: cred.user.uid,
+        action: 'login',
+        targetCollection: 'users',
+        targetId: cred.user.uid,
+        details: {email},
+      });
+    } catch{
+      console.warn('Login log failed',e);
+    }
+    return cred;
   }
 
   function logout() {
