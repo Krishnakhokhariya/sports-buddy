@@ -9,6 +9,9 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [sportInterest, setSportIntrest] = useState("");
+  const [skill, setSkill] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +21,7 @@ export default function Register() {
     setLoading(true);
     // console.log("Email:", email, "Password:", password,  "name:", name);
     try {
-      await signup(email, password, { name });
+      await signup(name, email, password, sportInterest, city, skill);
       alert("Account created successfully! Please log in.");
       navigate("/login");
     } catch (err) {
@@ -43,6 +46,7 @@ export default function Register() {
        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      
         <input
           type="text"
           aria-label="name"
@@ -70,6 +74,40 @@ export default function Register() {
           placeholder="Password"
           required
         />
+
+        <input
+          type="text"
+          aria-label="City"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
+          placeholder="City"
+          required
+        />
+
+        <input
+          type="text"
+          aria-label="SportInterest"
+          value={sportInterest}
+          onChange={(e) => setSportIntrest(e.target.value)}
+          className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
+          placeholder="SportsInterest (e.g. Football, Cricket)"
+          required
+        />
+
+        <select
+          value={skill}
+          onChange={(e) => setSkill(e.target.value)}
+          className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
+          required
+        >
+          <option value="">Select skill level</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+
+
         <div className="flex flex-col gap-4 justify-center items-center text-sm">
           <button
             type="submit"

@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import { addLog } from "../utils/logs";
-import { serverTimestamp } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -9,68 +8,103 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
-const AuthContext = React.createContext();
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  async function signup(email, password, extraProfile = {}) {
-     const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCred.user.uid;
-    await setDoc(doc(db, "users", uid), {
-      email,
-      role: "user",
-      createdAt:serverTimestamp(),
-      ...extraProfile
-    });
-    await signOut(auth);
+  // SIGN UP
 
+  async function signup(name, email, password, sportInterest, city, skill) {
+    const userCred = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const uid = userCred.user.uid;
+
+    await setDoc(doc(db, "users", uid), {
+      name,
+      email,
+      city,
+      sportInterest,
+      skill,
+      role: "user",
+      createdAt: serverTimestamp(),
+    });
+
+    await signOut(auth);
     return userCred;
   }
+
+  // LOGIN
 
   async function login(email, password) {
     const cred = await signInWithEmailAndPassword(auth, email, password);
 
-    try{
+    try {
       await addLog({
         actorUid: cred.user.uid,
-        action: 'login',
-        targetCollection: 'users',
+        action: "login",
+        targetCollection: "users",
         targetId: cred.user.uid,
-        details: {email},
+        details: { email },
       });
-    } catch{
-      console.warn('Login log failed',e);
+    } catch (e) {
+      console.warn("Login log failed", e);
     }
+
     return cred;
   }
 
-  function logout() {
-    return signOut(auth);
-  }
+  const logout = () => signOut(auth);
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
-  function resetPassword(email) {
-     console.log("Sending password reset for:", email);
-    return sendPasswordResetEmail(auth, email);
-  }
+  // LOAD AUTH + PROFILE
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      
+      if (user) {
+        setAuthUser(user);
+
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+
+          if (snap.exists()) {
+            setProfile({ uid: user.uid, ...snap.data() }); 
+          } else {
+            setProfile(null);
+          }
+        } catch (e) {
+          console.error("Profile load failed", e);
+          setProfile(null);
+        }
+      } else {
+        setAuthUser(null);
+        setProfile(null);
+      }
+
       setLoading(false);
     });
 
     return unsubscribe;
   }, []);
 
-  const value = { currentUser, signup, login, logout, resetPassword };
+  const value = {
+    authUser,
+    profile,
+    signup,
+    login,
+    logout,
+    resetPassword,
+    loading,
+  };
 
   return (
     <AuthContext.Provider value={value}>

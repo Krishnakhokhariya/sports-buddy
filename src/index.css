@@ -4,9 +4,10 @@
 
 html, body, #root {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
-  /* overflow-y: hidden;  */
+  overflow-y: hidden; 
   background-color: #f9fafb;
 }
 body {
@@ -16,13 +17,14 @@ body {
 body::-webkit-scrollbar {
   width: 0px; 
   background: transparent;
+  display: none;
 }
 
 .hero-gradient {
   background: linear-gradient(135deg, #007BFF 0%, #00C4CC 100%);
 }
 
-@layer utilities{
+/* @layer utilities{
   .no-scrollbar::-webkit-scrollbar{
     display: none;
   }
@@ -31,4 +33,4 @@ body::-webkit-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;;
   }
-}
+} */

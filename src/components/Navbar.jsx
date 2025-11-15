@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 function Navbar() {
-  const { currentUser, logout } = useAuth();
+  const { profile, logout } = useAuth();
 
   return (
     <nav className= 'bg-blue-600 text-white px-4 py-3 shadow-md flex flex-wrap items-center justify-between gap-2'>
@@ -16,7 +16,7 @@ function Navbar() {
           Events
         </Link>
 
-        {currentUser ? (
+        {profile ? (
           <>
             <Link to="/add-event" className="hover:underline">
               Add Event

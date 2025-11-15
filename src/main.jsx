@@ -12,10 +12,17 @@ import AddEvent from "./pages/AddEvent";
 import EditEvent from "./pages/EditEvent";
 import EventList from "./pages/EventList";
 import EventDetail from "./pages/EventDetail";
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function PrivateRoute({ children }) {
-  const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/login" />;
+  const { authUser, loading } = useAuth();
+
+  if (loading) return <p className="text-center mt-8">Checking session...</p>;
+
+  if (!authUser) return <Navigate to="/login" replace />;
+
+  return children;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -28,9 +35,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/register" element={<Register />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/add-event" element={<PrivateRoute><AddEvent /></PrivateRoute>}></Route>
-           <Route path="/edit-event/:id" element={<PrivateRoute><EditEvent /></PrivateRoute>}></Route>
+          <Route path="/edit-event/:id" element={<PrivateRoute><EditEvent /></PrivateRoute>}></Route>
           <Route path='/events' element={<EventList />}></Route>
           <Route path='/events/:id' element={<EventDetail />}></Route>
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>}></Route>
         </Routes>
       </AuthProvider>
     </BrowserRouter>

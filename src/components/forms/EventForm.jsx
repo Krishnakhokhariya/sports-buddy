@@ -17,7 +17,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
   const [skill, setSkill] = useState("");
   const [description, setDescription] = useState("");
 
-  const { currentUser } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,7 +43,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
     setLoading(true);
 
     try {
-      if (!currentUser) throw new Error("You must be logged in");
+      if (!profile) throw new Error("You must be logged in");
 
       const eventData = {
         title,
@@ -61,7 +61,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
         await updateDoc(eventRef, eventData);
 
         await addLog({
-          actorUid: currentUser.uid,
+          actorUid: profile.uid,
           action: "UpdateEvent",
           targetCollection: "events",
           targetId: existingEvent.id,
@@ -70,13 +70,13 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
       } else {
         const newEvent = {
           ...eventData,
-          createdBy: currentUser.uid,
+          createdBy: profile.uid,
           attendees: [],
         };
         const newId = await addEvent(newEvent);
 
         await addLog({
-          actorUid: currentUser.uid,
+          actorUid: profile.uid,
           action: "createEvent",
           targetCollection: "events",
           targetId: newId,
@@ -104,7 +104,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
       </button>
       <form
         onSubmit={handleSubmit}
-        className="max-w-xl mx-auto p-4 flex flex-col space-y-4 bg-white rounded-xl shadow-md gap-4"
+        className="max-w-xl mx-auto py-4  flex flex-col space-y-4 bg-white rounded-xl shadow-md gap-4 sm:gap-2"
       >
         <h2 className="text-2xl font-heading text-primary text-center mb-2">
           {existingEvent ? "Edit Event" : "Create New Event"}
@@ -128,7 +128,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
         />
 
         <input
-          type="date"
+          type="datetime-local"
           value={dateTime}
           onChange={(e) => setDateTime(e.target.value)}
           className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"

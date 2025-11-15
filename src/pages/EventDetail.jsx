@@ -21,7 +21,7 @@ function EventDetail() {
   const [creator, setCreator] = useState(null);
   const [attendees, setAttendees] = useState([]);
 
-  const { currentUser } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,19 +70,19 @@ function EventDetail() {
     fetchAttendees();
   }, [event]);
 
-  const isUserJoined = event?.attendees?.includes(currentUser?.uid);
+  const isUserJoined = event?.attendees?.includes(profile?.uid);
 
   async function handleJoin() {
-    if (!currentUser) return alert("Please login to join this event!");
+    if (!profile) return alert("Please login to join this event!");
     setJoining(true);
     try {
       const docRef = doc(db, "events", id);
       await updateDoc(docRef, {
-        attendees: arrayUnion(currentUser.uid),
+        attendees: arrayUnion(profile.uid),
       });
       setEvent((prev) => ({
         ...prev,
-        attendees: [...(prev.attendees || []), currentUser.uid],
+        attendees: [...(prev.attendees || []), profile.uid],
       }));
     } catch (err) {
       console.error("Error Joining event: ", err);
@@ -96,11 +96,11 @@ function EventDetail() {
     try {
       const docRef = doc(db, "events", id);
       await updateDoc(docRef, {
-        attendees: arrayRemove(currentUser.uid),
+        attendees: arrayRemove(profile.uid),
       });
       setEvent((prev) => ({
         ...prev,
-        attendees: prev.attendees.filter((uid) => uid !== currentUser.uid),
+        attendees: prev.attendees.filter((uid) => uid !== profile.uid),
       }));
     } catch (err) {
       console.error("Error leaving event: ", err);
@@ -114,7 +114,7 @@ function EventDetail() {
       try {
         await deleteDoc(doc(db, "events", eventId));
         await addLog({
-          actorUid: currentUser.uid,
+          actorUid: profile.uid,
           action: "DeleteEvent",
           // role: currentUser.role === "admin" ? "Admin" : "User",
           targetCollection: "events",
@@ -205,7 +205,7 @@ function EventDetail() {
               </button>
             )}
 
-            {event.createdBy === currentUser?.uid && (
+            {event.createdBy === profile?.uid && (
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => navigate(`/edit-event/${event.id}`)}

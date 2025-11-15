@@ -9,22 +9,22 @@ import EventCard from "../components/EventCard";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const { currentUser } = useAuth();
+  const { profile, loading } = useAuth();
   const [createdEvents, setCreatedEvents] = useState([]);
   const [joinedEvents, setJoinedEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("created");
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
-      if (!currentUser) return;
+      if (!profile) return;
 
       try {
         //fetch events for cratedEvents
         const createdQuery = query(
           collection(db, "events"),
-          where("createdBy", "==", currentUser.uid)
+          where("createdBy", "==", profile.uid)
         );
         const createdSnap = await getDocs(createdQuery);
         const created = createdSnap.docs.map((d) => ({
@@ -35,7 +35,7 @@ export default function Dashboard() {
         //fetch events for joinedEvents
         const joinedQuery = query(
           collection(db, "events"),
-          where("attendees", "array-contains", currentUser.uid)
+          where("attendees", "array-contains", profile.uid)
         );
         const joinedSnap = await getDocs(joinedQuery);
         const joined = joinedSnap.docs.map((d) => ({
@@ -48,14 +48,14 @@ export default function Dashboard() {
       } catch (err) {
         console.error("Error fetching dashbord data: ", err);
       } finally {
-        setLoading(false);
+        setPageLoading(false);
       }
     }
 
     fetchData();
-  }, [currentUser]);
+  }, [profile]);
 
-  if (loading)
+  if (loading || pageLoading) 
     return (
       <p className="text-center text-gray-500 mt-8">Loading Dashboard...</p>
     );
@@ -64,7 +64,9 @@ export default function Dashboard() {
     <Layout>
       <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6">
         {/* <h1 className="text-2xl font-bold text-primary mb-6">My Dashboard</h1> */}
-
+        <h1 className="text-2xl font-bold text-primary mb-6">
+          Welcome, {profile.name}
+        </h1>
         <div className="flex w-max rounded-md bg-gray-200 overflow-hidden">
           <button
             onClick={() => setActiveTab("created")}
@@ -88,23 +90,21 @@ export default function Dashboard() {
           </button>
         </div>
 
-        
         <h1 className="text-xl text-primary font-bold mb-0">
-    {activeTab === "created" ? "My Created Events" : "My Joined Events"}
-  </h1>
+          {activeTab === "created" ? "My Created Events" : "My Joined Events"}
+        </h1>
 
-  {activeTab === "created" && (
-    <div className="mb-4">
-      <button
-        onClick={() => navigate("/add-event")}
-        className="bg-primary text-white px-3 py-1 rounded hover:bg-blue-600"
-      >
-        + Add Event
-      </button>
-    </div>
-  )}
+        {activeTab === "created" && (
+          <div className="mb-4">
+            <button
+              onClick={() => navigate("/add-event")}
+              className="bg-primary text-white px-3 py-1 rounded hover:bg-blue-600"
+            >
+              + Add Event
+            </button>
+          </div>
+        )}
 
-       
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {activeTab === "created" ? (
             createdEvents.length > 0 ? (
@@ -117,7 +117,9 @@ export default function Dashboard() {
               </p>
             )
           ) : joinedEvents.length > 0 ? (
-            joinedEvents.map((event) => <EventCard key={event.id} event={event} />)
+            joinedEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))
           ) : (
             <p className="text-gray-500 text-center col-span-full">
               You haven’t joined any events yet.
