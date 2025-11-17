@@ -1,4 +1,4 @@
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
 export async function addLog({
@@ -22,4 +22,10 @@ export async function addLog({
   } catch (err) {
     console.error(`Failed to log action`, err);
   }
+}
+
+export async function getAllLogs() {
+  const q = query(collection(db, "logs"), orderBy("timestamp", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }

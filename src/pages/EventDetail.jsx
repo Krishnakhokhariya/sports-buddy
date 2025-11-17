@@ -187,7 +187,8 @@ function EventDetail() {
             )}
           </div>
           <div className="mt-4 flex gap-3">
-            {isUserJoined ? (
+            {profile?.role !== "admin" && (
+              isUserJoined ? (
               <button
                 onClick={handleLeave}
                 disabled={joining}
@@ -203,9 +204,10 @@ function EventDetail() {
               >
                 {joining ? "Joining..." : "Join"}
               </button>
+            )
             )}
 
-            {event.createdBy === profile?.uid && (
+            {profile.role === "admin" || event.createdBy === profile?.uid?  (
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => navigate(`/edit-event/${event.id}`)}
@@ -220,7 +222,7 @@ function EventDetail() {
                   Delete
                 </button>
               </div>
-            )}
+            ): null}
           </div>
         </div>
       </div>

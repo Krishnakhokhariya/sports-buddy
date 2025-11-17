@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, profile } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,12 +19,22 @@ export default function Login() {
     try {
       await login(email, password);
       alert("Logged in successfully!");
-      navigate("/");
+      
     } catch (err) {
       setError("Invalid email or password");
     }
     setLoading(false);
   }
+
+  useEffect(()=>{
+    if(profile){
+      if(profile.role === 'admin'){
+        navigate("/admin");
+      } else{
+        navigate("/");
+      }
+    }
+  }, [profile, navigate]);
 
   return (
     <AuthCard
