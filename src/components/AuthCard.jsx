@@ -11,9 +11,7 @@ function AuthCard({ title, subtitle, children, footer }) {
         <div>{children}</div>
         {footer && <div className="mt-4 text-center text-sm">{footer}</div>}
       </div>
-      
     </div>
-    
   );
 }
 

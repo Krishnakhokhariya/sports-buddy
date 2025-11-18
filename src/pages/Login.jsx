@@ -31,7 +31,7 @@ export default function Login() {
       if(profile.role === 'admin'){
         navigate("/admin");
       } else{
-        navigate("/");
+        navigate("/dashboard");
       }
     }
   }, [profile, navigate]);
@@ -83,17 +83,5 @@ export default function Login() {
         </div>
       </form>
     </AuthCard>
-
-    // <div>
-    //   <h2>Login</h2>
-    //   {error && <div style={{color:"red"}}>{error}</div>}
-    //   <form onSubmit={handleSubmit}>
-    //     <input type="email" placeholder='Email' value={email} onChange={e=> setEmail(e.target.value)} />
-    //     <input type="password" placeholder='Password' value={password} onChange={e=> setPassword(e.target.value)} />
-    //     <button type="submit" disabled={loading}>Login</button>
-    //     <p><button type="button" onClick={() => navigate("/reset-password")} style={{border:"none", background:"none", color:"blue",cursor:"pointer"}}>Forgot Password?</button></p>
-    //   </form>
-    //   <p>Don't have an account? <Link to = "/register">Register</Link></p>
-    // </div>
   );
 }

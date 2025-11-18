@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { addLog } from "../../utils/logs";
 import { useAuth } from "../../contexts/AuthContext";
+import { addLog } from "../../utils/logs"
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
+export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
   const { profile } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,24 +14,25 @@ function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
 
-  async function load() {
+  const navigate = useNavigate();
+  
+  const load = async () => {
     setLoading(true);
-
     try {
       const all = await fetchAll();
       setItems(all);
     } catch (err) {
-      console.error("Failed to load", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     load();
   }, []);
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const value = editingId ? editingName : name;
     if (!value.trim()) return;
@@ -58,12 +62,12 @@ function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
       setEditingName("");
       load();
     } catch (err) {
-      alert("OPeration Failed");
+      alert("Operation Failed");
     }
-  }
+  };
 
-  async function handleDelete(id, label) {
-    if (!window.confirm(`Delete '${label}'? `)) return;
+  const handleDelete = async (id, label) => {
+    if (!window.confirm(`Delete '${label}'?`)) return;
     try {
       await deleteFn(id);
       await addLog({
@@ -75,87 +79,100 @@ function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
       });
       load();
     } catch (err) {
-      console.error("Failed to delete sports", err);
+      console.error(err);
       alert("Failed to delete");
     }
-  }
+  };
+
   return (
-    <>
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+    <div className="p-4 bg-white rounded shadow">
+       <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
+      >
+        <ArrowLeftIcon className="h-5 w-5" /> Back
+      </button>
+      <h2 className="text-xl text-center font-semibold mb-4">{title}</h2>
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4 flex flex-col sm:flex-row gap-2">
-          <input
-            value={editingId ? editingName : name}
-            onChange={(e) =>
-              editingId
-                ? setEditingName(e.target.value)
-                : setName(e.target.value)
-            }
-            className="flex-1 border p-2 rounded w-full 
-             focus:outline-none focus:border-blue-500 
-             placeholder:text-gray-400 placeholder:text-sm sm:placeholder:text-base"
-            placeholder="Enter name"
-          />
-
-          <button className="bg-primary text-white px-4 py-2 rounded w-full sm:w-auto 
-             transition-all duration-200 transform hover:scale-105 hover:bg-primary/90">
-            {editingId ? "Update" : "Add"}
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mb-4">
+        <input
+          value={editingId ? editingName : name}
+          onChange={(e) => (editingId ? setEditingName(e.target.value) : setName(e.target.value))}
+          placeholder="Enter name"
+          className="flex-1 border p-2 rounded focus:outline-none focus:border-blue-500"
+        />
+        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">
+          {editingId ? "Update" : "Add"}
+        </button>
+        {editingId && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingId(null);
+              setEditingName("");
+            }}
+            className="border px-4 py-2 rounded hover:bg-gray-200"
+          >
+            Cancel
           </button>
-
-          {editingId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setEditingName("");
-              }}
-              className="px-4 py-2 border border-gray-400 rounded w-full sm:w-auto 
-             transition-all duration-200 transform hover:scale-105 hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
+        )}
       </form>
 
       {loading ? (
-        <p className="mt-4">Loading...</p>
+        <p>Loading...</p>
       ) : items.length === 0 ? (
-        <p className="mt-4 text-gray-500">No items found.</p>
+        <p className="text-gray-500">No items found.</p>
       ) : (
-        <ul className="mt-4 space-y-2">
+        <ul className="space-y-2">
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex justify-between border p-3 rounded"
+              className="flex justify-between items-center border p-3 rounded"
             >
               <span>{item.name}</span>
+              <div className="opacity-80 group-hover:opacity-100 flex gap-2 justify-end transition">
 
-              <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                    setEditingId(item.id);
+                    setEditingName(item.name);
+                  }}
+                      className="text-blue-600 hover:scale-125 transition"
+                      title="Edit"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                    
+                    <button
+                      onClick={() => handleDelete(item.id, item.name)}
+                      className="text-red-600 hover:scale-125 transition"
+                      title="Delete"
+                    >
+                     <TrashIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+
+              {/* <div className="flex gap-2">
                 <button
                   onClick={() => {
                     setEditingId(item.id);
                     setEditingName(item.name);
                   }}
-                  className="text-sm text-blue-600 transition-all duration-200 transform hover:scale-110"
+                  className="text-blue-600 hover:underline"
                 >
                   Edit
                 </button>
-
                 <button
                   onClick={() => handleDelete(item.id, item.name)}
-                  className="text-sm text-red-600 transition-all duration-200 transform hover:scale-110"
+                  className="text-red-600 hover:underline"
                 >
                   Delete
                 </button>
-              </div>
+              </div> */}
             </li>
           ))}
         </ul>
       )}
-    </>
+    </div>
   );
 }
-
-export default AdminCRUD;

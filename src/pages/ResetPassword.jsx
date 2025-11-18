@@ -56,18 +56,5 @@ export default function ResetPassword() {
           </button>
       </form>
     </AuthCard>
-    // <div>
-    //   <h2>Reset Password</h2>
-    //   {error && <div style={{color: "red"}}>{error}</div>}
-    //   {message && <div style={{color: "green"}}>{message}</div>}
-
-    //   <form onSubmit={handleSubmit}>
-    //     <input type="email" placeholder="Enter your Registered email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
-    //     <button type="submit" disabled={loading}>Send Resend Link</button>
-    //   </form>
-    //   <p>
-    //     <Link to = "/login">Back to Login</Link>
-    //   </p>
-    // </div>
   );
 }

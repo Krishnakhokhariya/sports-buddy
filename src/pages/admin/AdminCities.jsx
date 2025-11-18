@@ -6,7 +6,11 @@ function AdminCities() {
   return (
     <AdminCRUD 
     title= "Manage Cities"
-    fetchAll={getAllCities}
+    fetchAll={async () =>{
+      console.log("Fetching cities...");
+      const city = await getAllCities();
+      return city;
+    }}
     createFn={createCity}
     updateFn={updateCity}
     deleteFn={deleteCity}/>

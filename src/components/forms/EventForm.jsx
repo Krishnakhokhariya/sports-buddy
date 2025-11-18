@@ -5,7 +5,6 @@ import { Timestamp, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { addLog } from "../../utils/logs";
-import Layout from "../Layout";
 
 // NEW IMPORTS
 import { getAllSports } from "../../utils/sports";
@@ -149,18 +148,17 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
   }
 
   return (
-    <Layout>
-      <div className="overflow-auto no-scrollbar">
-        <button
-          onClick={() => navigate(-1)}
-          className="mb-4 text-blue-600 hover:underline text-sm"
-        >
-          ← Back
-        </button>
+    <div className="overflow-auto no-scrollbar">
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 text-blue-600 hover:underline text-sm"
+      >
+        ← Back
+      </button>
 
         <form
           onSubmit={handleSubmit}
-          className="max-w-xl mx-auto py-4 flex flex-col space-y-4 bg-white rounded-xl shadow-md"
+          className="max-w-xl mx-auto p-4 flex flex-col space-y-4 bg-white rounded-xl shadow-md"
         >
           <h2 className="text-2xl font-heading text-primary text-center mb-2">
             {existingEvent ? "Edit Event" : "Create New Event"}
@@ -270,8 +268,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
               : "Create Event"}
           </button>
         </form>
-      </div>
-    </Layout>
+    </div>
   );
 }
 

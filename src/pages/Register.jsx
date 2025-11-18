@@ -17,15 +17,14 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setEmail("");
+    setError("");
     setLoading(true);
-    // console.log("Email:", email, "Password:", password,  "name:", name);
     try {
       await signup(name, email, password, sportInterest, city, skill);
       alert("Account created successfully! Please log in.");
       navigate("/login");
     } catch (err) {
-      setError("Failed to create account:", err.message);
+      setError(`Failed to create account: ${err.message}`);
     }
     setLoading(false);
   }
@@ -119,16 +118,5 @@ export default function Register() {
         </div>
       </form>
     </AuthCard>
-    // <div>
-    //   <h2>Register</h2>
-    //   {error && <div style={{color: "red"}}>{error}</div>}
-    //   <form onSubmit={handleSubmit}>
-    //     <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Full Name" required />
-    //     <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email" required />
-    //     <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" required />
-    //     <button type="submit" disabled={loading}>Sign Up</button>
-    //   </form>
-    //   <p>Already have an account? <Link to="/login">Login</Link></p>
-    // </div>
   );
 }

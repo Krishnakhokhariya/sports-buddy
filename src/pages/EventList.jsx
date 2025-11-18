@@ -1,7 +1,6 @@
-import { React, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import EventCard from "../components/EventCard";
 import { getAllEvents } from "../utils/events";
-import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
 
 function EventList() {
@@ -61,7 +60,7 @@ function EventList() {
     return <p className="text-center text-gray-500 mt-8">No events yet...</p>;
 
   return (
-    <Layout>
+    <>
       <button
         onClick={() => navigate(-1)}
         className="mb-4 text-blue-600 hover:underline text-sm"
@@ -74,14 +73,14 @@ function EventList() {
             type="text"
             placeholder="Search by sport..."
             value={sportFilter}
-            onChange={(e) => setSportFilter(e.target.value.toLowerCase())}
+            onChange={(e) => setSportFilter(e.target.value)}
             className="border p-2 rounded w-full sm:w-1/3"
           />
           <input
             type="text"
             placeholder="city..."
             value={cityFilter}
-            onChange={(e) => setCityFilter(e.target.value.toLowerCase())}
+            onChange={(e) => setCityFilter(e.target.value)}
             className="border p-2 rounded w-full sm:w-1/3"
           />
           <input
@@ -105,7 +104,7 @@ function EventList() {
           ))}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
 

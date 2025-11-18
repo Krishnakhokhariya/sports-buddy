@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import Layout from "../components/Layout";
-// import SportCard from "../components/SportCard";
-// import Navbar from "../components/Navbar";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import EventCard from "../components/EventCard";
@@ -46,7 +43,7 @@ export default function Dashboard() {
         setCreatedEvents(created);
         setJoinedEvents(joined);
       } catch (err) {
-        console.error("Error fetching dashbord data: ", err);
+        console.error("Error fetching dashboard data: ", err);
       } finally {
         setPageLoading(false);
       }
@@ -61,12 +58,10 @@ export default function Dashboard() {
     );
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6">
-        {/* <h1 className="text-2xl font-bold text-primary mb-6">My Dashboard</h1> */}
-        <h1 className="text-2xl font-bold text-primary mb-6">
-          Welcome, {profile.name}
-        </h1>
+    <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6">
+      <h1 className="text-2xl font-bold text-primary mb-6">
+        Welcome, {profile.name}
+      </h1>
         <div className="flex w-max rounded-md bg-gray-200 overflow-hidden">
           <button
             onClick={() => setActiveTab("created")}
@@ -127,6 +122,5 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-    </Layout>
   );
 }
