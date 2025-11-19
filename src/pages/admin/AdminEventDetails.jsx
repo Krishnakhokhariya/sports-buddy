@@ -10,7 +10,11 @@ import {
 import { db } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { addLog } from "../../utils/logs";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  PencilIcon,
+  TrashIcon,
+  ArrowLeftIcon,
+} from "@heroicons/react/24/outline";
 
 function AdminEventDetails() {
   const { id } = useParams();
@@ -121,6 +125,12 @@ function AdminEventDetails() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-sm">
+      <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
+          >
+            <ArrowLeftIcon className="h-5 w-5" /> Back
+          </button>
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-sm text-gray-500">Event</div>
@@ -131,12 +141,6 @@ function AdminEventDetails() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="text-sm text-blue-600 hover:underline mr-2"
-          >
-            ← Back
-          </button>
 
           <button
             onClick={() => navigate(`/admin/events/edit/${id}`)}
@@ -154,7 +158,6 @@ function AdminEventDetails() {
           >
             <TrashIcon className="h-5 w-5" />
           </button>
-
         </div>
       </div>
 

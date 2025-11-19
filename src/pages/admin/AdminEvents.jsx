@@ -5,7 +5,7 @@ import { getAllSports } from "../../utils/sports";
 import { getAllCities } from "../../utils/cities";
 import { getAllEvents, deleteEvent } from "../../utils/events";
 import { getAreasByCity } from "../../utils/areas";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon , ArrowLeftIcon} from "@heroicons/react/24/outline";
 
 function AdminEvents() {
   const navigate = useNavigate();
@@ -86,6 +86,13 @@ function AdminEvents() {
 
   return (
     <div className="p-4">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
+      >
+        <ArrowLeftIcon className="h-5 w-5" /> Back
+      </button>
+
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
         <select
           className="border p-2 rounded w-full"
