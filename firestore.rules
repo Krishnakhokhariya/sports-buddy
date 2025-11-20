@@ -54,17 +54,33 @@ service cloud.firestore {
       
       // Attendees subcollection
       match /attendees/{attendeeId} {
+        // Helper function to check if user is event creator
+        function isEventCreator() {
+          return isAuthenticated() && 
+                 exists(/databases/$(database)/documents/events/$(eventId)) &&
+                 get(/databases/$(database)/documents/events/$(eventId)).data.createdBy == request.auth.uid;
+        }
+        
         // Allow read for authenticated users
         allow read: if isAuthenticated();
         
         // Allow create for authenticated users (joining event)
         allow create: if isAuthenticated() && isOwner(attendeeId);
         
-        // Allow delete for the attendee themselves (leaving event)
-        allow delete: if isAuthenticated() && isOwner(attendeeId);
+        // Allow delete for the attendee themselves (leaving event) or event creator (rejecting request)
+        allow delete: if isAuthenticated() && (isOwner(attendeeId) || isEventCreator());
         
-        // Allow update only for the attendee themselves
-        allow update: if isAuthenticated() && isOwner(attendeeId);
+        // Allow update for:
+        // 1. The attendee themselves (limited fields)
+        // 2. Event creator (to update status: pending -> accepted/rejected)
+        allow update: if isAuthenticated() && (
+          // Attendee can update their own document (for limited fields)
+          isOwner(attendeeId) ||
+          // Event creator can update status and acceptedAt fields only
+          (isEventCreator() && 
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt']) &&
+           request.resource.data.status in ['pending', 'accepted', 'rejected'])
+        );
       }
     }
     
@@ -91,6 +107,26 @@ service cloud.firestore {
     match /areas/{areaId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Allow read for the user who owns the notification
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Allow create for authenticated users (for sending notifications)
+      allow create: if isAuthenticated();
+      
+      // Allow update for the user who owns the notification (to mark as read)
+      allow update: if isAuthenticated() && 
+                     resource.data.userId == request.auth.uid &&
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+      
+      // Allow delete for the user who owns the notification or admin
+      allow delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
     }
   }
 }

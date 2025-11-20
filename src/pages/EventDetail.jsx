@@ -11,6 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { leaveEvent } from "../utils/events";
 import { deleteEvent } from "../utils/events";
 import { joinEvent } from "../utils/events";
+import { getEventAttendeeRequests } from "../utils/events";
 
 function EventDetail() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ function EventDetail() {
   const [joining, setJoining] = useState(false);
   const [creator, setCreator] = useState(null);
   const [attendees, setAttendees] = useState([]);
+  const [pendingCount, setPendingCount] = useState(0); // Count of pending requests
 
   const { profile } = useAuth();
   const navigate = useNavigate();
@@ -54,16 +56,24 @@ function EventDetail() {
   const refreshAttendees = async () => {
     if (!event?.id) return;
     try {
+      // Fetch all attendees first
       const attendeesRef = collection(db, `events/${event.id}/attendees`);
       const attendeesSnap = await getDocs(attendeesRef);
-      const attendeeData = [];
+      const allAttendees = [];
+      
       attendeesSnap.forEach((doc) => {
-        attendeeData.push({
-          id: doc.id,
-          ...doc.data(),
-        });
+        const data = doc.data();
+        // Show accepted attendees OR old attendees without status (backward compatibility)
+        // Hide pending requests from regular view
+        if (!data.status || data.status === "accepted") {
+          allAttendees.push({
+            id: doc.id,
+            ...data,
+          });
+        }
       });
-      setAttendees(attendeeData);
+      
+      setAttendees(allAttendees);
     } catch (err) {
       console.error("Error Fetching attendees: ", err);
     }
@@ -71,7 +81,20 @@ function EventDetail() {
 
   useEffect(() => {
     refreshAttendees();
-  }, [event?.id]);
+    
+    // Load pending count if user is creator
+    async function loadPendingCount() {
+      if (!event?.id || event.createdBy !== profile?.uid) return;
+      try {
+        const pendingRequests = await getEventAttendeeRequests(event.id, "pending");
+        setPendingCount(pendingRequests.length);
+      } catch (err) {
+        console.error("Error loading pending count:", err);
+      }
+    }
+    
+    loadPendingCount();
+  }, [event?.id, event?.createdBy, profile?.uid]);
 
   const isUserJoined = event?.attendees?.includes(profile?.uid);
 
@@ -168,7 +191,15 @@ function EventDetail() {
               </span>
             </p>
 
-            <h3 className="font-semibold">Attendees: </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">Attendees: </h3>
+              {/* Show pending count badge for creator */}
+              {event.createdBy === profile?.uid && pendingCount > 0 && (
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
+                  {pendingCount} pending request{pendingCount !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
             {attendees.length > 0 ? (
               <ul className="list-disc ml-6 text-gray-700">
                 {attendees.map((a, index) => {
@@ -176,7 +207,7 @@ function EventDetail() {
                 })}
               </ul>
             ) : (
-              <p className="text-gray-500">No attendees yet...</p>
+              <p className="text-gray-500">No accepted attendees yet...</p>
             )}
           </div>
           <div className="mt-4 flex flex-col gap-3">
@@ -200,19 +231,35 @@ function EventDetail() {
 
             {(profile?.role === "admin" ||
               event.createdBy === profile?.uid) && (
-              <div className="flex gap-3">
-                <button
-                  onClick={() => navigate(`/edit-event/${event.id}`)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
+              <div className="flex flex-col gap-3">
+                {/* View Attendee Requests Button - Only for creator */}
+                {event.createdBy === profile?.uid && (
+                  <button
+                    onClick={() => navigate(`/events/${event.id}/attendee-requests`)}
+                    className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                  >
+                    View Attendee Requests
+                    {pendingCount > 0 && (
+                      <span className="ml-2 px-2 py-1 bg-yellow-500 rounded">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </button>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate(`/edit-event/${event.id}`)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             )}
           </div>

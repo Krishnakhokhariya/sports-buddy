@@ -30,6 +30,12 @@ function Navbar() {
             >
               Events
             </Link>
+            <Link
+              to="/profile"
+              className="hover:underline text-white font-medium"
+            >
+              Profile
+            </Link>
             <button
               onClick={logout}
               className="bg-white text-blue-600 px-3 py-1 rounded-md font-semibold hover:bg-gray-100"

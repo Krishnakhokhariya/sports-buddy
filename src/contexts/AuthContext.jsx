@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
 
   // SIGN UP
 
-  async function signup(name, email, password, sportInterest, city, skill) {
+  async function signup(name, email, password, sportInterest = "", city="", skill="", area="") {
     const userCred = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -28,12 +28,19 @@ export function AuthProvider({ children }) {
     );
     const uid = userCred.user.uid;
 
+    // Split comma-separated sports into array
+    const sportsArray = sportInterest 
+      ? sportInterest.split(',').map(s => s.trim()).filter(s => s.length > 0)
+      : [];
+
     await setDoc(doc(db, "users", uid), {
       name,
       email,
-      city,
-      sportInterest,
-      skill,
+      city: city || "",
+      area: area || "",
+      sportInterest: sportInterest || "",
+      sports: sportsArray, // Store as array of sport names
+      skill: skill || "",
       role: "user",
       createdAt: serverTimestamp(),
     });

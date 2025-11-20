@@ -17,6 +17,8 @@ import AddEvent from "./pages/AddEvent";
 import EditEvent from "./pages/EditEvent";
 import EventList from "./pages/EventList";
 import EventDetail from "./pages/EventDetail";
+import AttendeeRequests from "./pages/AttendeeRequests";
+import ProfileEdit from "./pages/ProfileEdit";
 
 // Admin Pages
 import AdminRoute from "./components/admin/AdminRoute";
@@ -30,6 +32,7 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminEventDetails from "./pages/admin/AdminEventDetails";
+
 
 function RootRedirect(){
   const {profile, loading} = useAuth();
@@ -75,10 +78,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               }
             >
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<ProfileEdit />} />
               <Route path="/add-event" element={<AddEvent />} />
               <Route path="/edit-event/:id" element={<EditEvent />} />
               <Route path="/events" element={<EventList />} />
               <Route path="/events/:id" element={<EventDetail />} />
+              <Route path="/events/:id/attendee-requests" element={<AttendeeRequests />} />
             </Route>
 
             <Route element={<AdminRoute />}>
