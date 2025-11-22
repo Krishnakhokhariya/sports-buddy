@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getAllCities } from "../../utils/cities";
 import { addLog } from "../../utils/logs";
-import { createArea, getAllAreas, updateArea, deleteArea } from "../../utils/areas";
+import {
+  createArea,
+  getAllAreas,
+  updateArea,
+  deleteArea,
+} from "../../utils/areas";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -24,8 +29,13 @@ function AdminAreas() {
 
   useEffect(() => {
     async function load() {
-      setCities(await getAllCities());
-      setAreas(await getAllAreas());
+      const allCities = await getAllCities();
+      let allAreas = await getAllAreas();
+
+      allAreas = allAreas.sort((a, b) => a.name.localeCompare(b.name));
+
+      setCities(allCities);
+      setAreas(allAreas);
       setLoading(false);
     }
     load();
@@ -33,7 +43,8 @@ function AdminAreas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId ? !editingName.trim() || !editingCity : !name.trim() || !city) return;
+    if (editingId ? !editingName.trim() || !editingCity : !name.trim() || !city)
+      return;
 
     try {
       if (editingId) {
@@ -55,7 +66,10 @@ function AdminAreas() {
           details: { name },
         });
       }
-      setName(""); setCity(""); setEditingId(null); setEditingName("");
+      setName("");
+      setCity("");
+      setEditingId(null);
+      setEditingName("");
       setAreas(await getAllAreas());
     } catch (err) {
       console.error(err);
@@ -70,7 +84,6 @@ function AdminAreas() {
 
   return (
     <div className="p-4 sm:p-6 bg-white rounded shadow w-full max-w-5xl mx-auto">
-     
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
@@ -80,21 +93,48 @@ function AdminAreas() {
 
       <h2 className="text-xl text-center font-semibold mb-4">Manage Areas</h2>
 
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mb-4">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleSubmit(e);
+          }
+        }}
+        className="flex flex-col sm:flex-row gap-2 mb-4"
+      >
         <input
           value={editingId ? editingName : name}
-          onChange={(e) => (editingId ? setEditingName(e.target.value) : setName(e.target.value))}
+          onChange={(e) =>
+            editingId ? setEditingName(e.target.value) : setName(e.target.value)
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
           placeholder="Enter name"
           className="flex-1 border p-2 rounded focus:outline-none focus:border-blue-500"
         />
         <select
-          className="border p-2 rounded"
+          className="border p-2 rounded focus:outline-none focus:border-blue-500"
           value={editingId ? editingCity : city}
-          onChange={(e) => (editingId ? setEditingCity(e.target.value) : setCity(e.target.value))}
+          onChange={(e) =>
+            editingId ? setEditingCity(e.target.value) : setCity(e.target.value)
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
         >
           <option value="">Select City</option>
           {cities.map((c) => (
-            <option key={c.id} value={c.name}>{c.name}</option>
+            <option key={c.id} value={c.name}>
+              {c.name}
+            </option>
           ))}
         </select>
         <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">
@@ -103,7 +143,10 @@ function AdminAreas() {
         {editingId && (
           <button
             type="button"
-            onClick={() => { setEditingId(null); setEditingName(""); }}
+            onClick={() => {
+              setEditingId(null);
+              setEditingName("");
+            }}
             className="border px-4 py-2 rounded hover:bg-gray-200"
           >
             Cancel
@@ -118,33 +161,35 @@ function AdminAreas() {
       ) : (
         <ul className="space-y-2">
           {areas.map((a) => (
-            <li key={a.id} className="flex flex-row justify-between border p-3 rounded gap-2">
-              <span>{a.name} - <span className="text-gray-500 text-sm">{a.city}</span></span>
+            <li
+              key={a.id}
+              className="flex flex-row justify-between border p-3 rounded gap-2"
+            >
+              <span>
+                {a.name} -{" "}
+                <span className="text-gray-500 text-sm">{a.city}</span>
+              </span>
               <div className="opacity-80 group-hover:opacity-100 flex gap-2 justify-end transition">
+                <button
+                  onClick={() => {
+                    setEditingId(a.id);
+                    setEditingName(a.name);
+                    setEditingCity(a.city);
+                  }}
+                  className="text-blue-600 hover:scale-125 transition"
+                  title="Edit"
+                >
+                  <PencilIcon className="h-5 w-5" />
+                </button>
 
-                    <button
-                      onClick={() => { setEditingId(a.id); setEditingName(a.name); setEditingCity(a.city); }}
-                      className="text-blue-600 hover:scale-125 transition"
-                      title="Edit"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    
-                    <button
-                      onClick={() => handleDelete(a.id, a.name)}
-                      className="text-red-600 hover:scale-125 transition"
-                      title="Delete"
-                    >
-                     <TrashIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-              
-              {/* <div className="flex gap-3">
-                <button onClick={() => { setEditingId(a.id); setEditingName(a.name); setEditingCity(a.city); }} 
-                        className="text-blue-600 hover:underline">Edit</button>
-                <button onClick={() => handleDelete(a.id, a.name)} 
-                        className="text-red-600 hover:underline">Delete</button>
-              </div> */}
+                <button
+                  onClick={() => handleDelete(a.id, a.name)}
+                  className="text-red-600 hover:scale-125 transition"
+                  title="Delete"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </div>
             </li>
           ))}
         </ul>

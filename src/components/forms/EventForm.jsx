@@ -6,15 +6,15 @@ import { db } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { addLog } from "../../utils/logs";
 
-// NEW IMPORTS
 import { getAllSports } from "../../utils/sports";
 import { getAllCities } from "../../utils/cities";
 import { getAreasByCity } from "../../utils/areas";
+import { handleEnterKey } from "../../utils/keypress";
 
 function EventForm({ existingEvent = null, onSubmitSuccess }) {
   const [loading, setLoading] = useState(false);
 
-  // Form Fields
+ 
   const [title, setTitle] = useState("");
   const [sport, setSport] = useState("");
   const [dateTime, setDateTime] = useState("");
@@ -23,7 +23,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
   const [skill, setSkill] = useState("");
   const [description, setDescription] = useState("");
 
-  // NEW STATE
+
   const [sports, setSports] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -31,7 +31,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
   const { profile } = useAuth();
   const navigate = useNavigate();
 
-  // LOAD DROPDOWN DATA
+ 
   useEffect(() => {
     async function loadDropdowns() {
       const s = await getAllSports();
@@ -39,7 +39,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
       setSports(s);
       setCities(c);
 
-      // If editing → preload areas
+     
       if (existingEvent?.city) {
         const a = await getAreasByCity(existingEvent.city);
         setAreas(a);
@@ -48,7 +48,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
     loadDropdowns();
   }, [existingEvent]);
 
-  // LOAD EXISTING EVENT DATA
+  
   useEffect(() => {
     if (existingEvent) {
       setTitle(existingEvent.title || "");
@@ -67,7 +67,6 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
     }
   }, [existingEvent]);
 
-  // LOAD AREAS WHEN CITY CHANGES
   useEffect(() => {
     if (!city) {
       setAreas([]);
@@ -78,14 +77,14 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
     async function fetchAreas() {
       const list = await getAreasByCity(city);
       setAreas(list);
-      setArea(""); // reset area on city change
+      setArea(""); 
     }
 
     fetchAreas();
   }, [city]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(e = null) {
+    if(e) e.preventDefault();
     setLoading(true);
 
     try {
@@ -158,26 +157,27 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
 
         <form
           onSubmit={handleSubmit}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="max-w-xl mx-auto p-4 flex flex-col space-y-4 bg-white rounded-xl shadow-md"
         >
           <h2 className="text-2xl font-heading text-primary text-center mb-2">
             {existingEvent ? "Edit Event" : "Create New Event"}
           </h2>
 
-          {/* TITLE */}
           <input
             type="text"
             placeholder="Event Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />
 
-          {/* SPORT DROPDOWN */}
           <select
             value={sport}
             onChange={(e) => setSport(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           >
@@ -189,19 +189,19 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             ))}
           </select>
 
-          {/* DATE TIME */}
           <input
             type="datetime-local"
             value={dateTime}
             onChange={(e) => setDateTime(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />
 
-          {/* CITY DROPDOWN */}
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           >
@@ -213,10 +213,10 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             ))}
           </select>
 
-          {/* AREA DROPDOWN */}
           <select
             value={area}
             onChange={(e) => setArea(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
             disabled={!city}
@@ -232,10 +232,10 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             ))}
           </select>
 
-          {/* SKILL */}
           <select
             value={skill}
             onChange={(e) => setSkill(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
           >
             <option value="">Select skill level</option>
@@ -244,16 +244,15 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             <option value="Advanced">Advanced</option>
           </select>
 
-          {/* DESCRIPTION */}
           <textarea
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />
 
-          {/* SUBMIT */}
           <button
             type="submit"
             disabled={loading}

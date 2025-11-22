@@ -204,8 +204,33 @@ function AttendeeRequests() {
     }
   }
 
+  // async function handleReject(attendeeId) {
+  //   if (!window.confirm("Reject this attendee request?")) return;
+
+  //   setProcessing(attendeeId);
+  //   try {
+  //     await rejectAttendeeRequest(event.id, attendeeId, profile, event.title);
+
+  //     setAttendees((prev) => prev.filter((a) => a.id !== attendeeId));
+  //     setFilteredAttendees((prev) => prev.filter((a) => a.id !== attendeeId));
+
+  //     alert("Request rejected");
+  //   } catch (err) {
+  //     console.error("Error rejecting request:", err);
+  //     alert("Error rejecting request");
+  //   } finally {
+  //     setProcessing(null);
+  //   }
+  // }
   async function handleReject(attendeeId) {
-    if (!window.confirm("Reject this attendee request?")) return;
+    const attendee = attendees.find((a) => a.id === attendeeId);
+
+    const confirmText =
+      attendee?.status === "accepted"
+        ? "Remove this attendee from the event? They will be notified."
+        : "Reject this attendee request?";
+
+    if (!window.confirm(confirmText)) return;
 
     setProcessing(attendeeId);
     try {
@@ -213,8 +238,6 @@ function AttendeeRequests() {
 
       setAttendees((prev) => prev.filter((a) => a.id !== attendeeId));
       setFilteredAttendees((prev) => prev.filter((a) => a.id !== attendeeId));
-
-      alert("Request rejected");
     } catch (err) {
       console.error("Error rejecting request:", err);
       alert("Error rejecting request");
@@ -501,9 +524,28 @@ function AttendeeRequests() {
                           </button>
                         </div>
                       )}
-                      {attendee.status === "accepted" && (
+                      {/* {attendee.status === "accepted" && (
                         <div className="flex items-center justify-center md:w-32 h-10 px-4 bg-green-50 text-green-800 rounded-lg font-semibold text-sm">
                           Accepted
+                        </div>
+                      )} */}
+                      {attendee.status === "accepted" && (
+                        <div className="flex flex-row md:flex-col gap-2 md:w-32">
+                          <div className="flex items-center justify-center h-10 px-4 bg-green-50 text-green-800 rounded-lg font-semibold text-sm">
+                            Accepted
+                          </div>
+
+                          <button
+                            onClick={() => handleReject(attendee.id)}
+                            disabled={processing === attendee.id}
+                            className="flex-1 md:flex-none px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 
+                 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors
+                 shadow-sm hover:shadow-md"
+                          >
+                            {processing === attendee.id
+                              ? "Processing..."
+                              : "Remove"}
+                          </button>
                         </div>
                       )}
                     </div>

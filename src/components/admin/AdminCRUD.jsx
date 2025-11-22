@@ -19,7 +19,8 @@ export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteF
   const load = async () => {
     setLoading(true);
     try {
-      const all = await fetchAll();
+      let all = await fetchAll();
+      all = all.sort((a,b) => a.name.localeCompare(b.name))
       setItems(all);
     } catch (err) {
       console.error(err);

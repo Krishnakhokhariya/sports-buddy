@@ -10,8 +10,8 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(e = null) {
+    if(e) e.preventDefault();
     setError("");
     setMessage("");
     setLoading(true);
@@ -43,6 +43,7 @@ export default function ResetPassword() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           placeholder="Enter your Registered email"
           required

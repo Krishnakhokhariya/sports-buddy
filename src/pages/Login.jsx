@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
+import { handleEnterKey } from "../utils/keypress";
 
 export default function Login() {
   const { login, profile } = useAuth();
@@ -11,8 +12,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(e = null) {
+    if(e) e.preventDefault();
     setError("");
     setLoading(true);
 
@@ -56,6 +57,7 @@ export default function Login() {
           aria-label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none block w-full"
           placeholder="Email"
           required
@@ -65,6 +67,7 @@ export default function Login() {
           aria-label="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           placeholder="Password"
           required

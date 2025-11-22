@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
+import { handleEnterKey } from "../utils/keypress";
 
 import { getAllSports } from "../utils/sports";
 import { getAllCities } from "../utils/cities";
@@ -83,8 +84,8 @@ export default function Register() {
     );
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(e = null) {
+    if(e) e.preventDefault();
     setError("");
     setLoading(true);
     try {
@@ -121,6 +122,7 @@ export default function Register() {
           aria-label="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           placeholder="Full Name"
           required
@@ -130,6 +132,7 @@ export default function Register() {
           aria-label="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           placeholder="Email"
           required
@@ -139,6 +142,7 @@ export default function Register() {
           aria-label="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           placeholder="Password"
           required
@@ -147,6 +151,7 @@ export default function Register() {
         <select
           value={skill}
           onChange={(e) => setSkill(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           required
         >
@@ -161,6 +166,7 @@ export default function Register() {
         <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
+             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
             required
           >
@@ -179,6 +185,7 @@ export default function Register() {
           <select 
           value={area}
           onChange={(e)=> setArea(e.target.value)}
+           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="border rounded-md p-3 focus:ring-2 focus:ring-primary outline-none"
           required
           disabled={!city || areas.length === 0}>

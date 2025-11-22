@@ -55,7 +55,6 @@ export default function AdminDashboard() {
         const date = data.dateTime.toDate();
         
         const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        console.log(date, month); 
         counts[month] = (counts[month] || 0) + 1;
       }
     });
@@ -63,7 +62,7 @@ export default function AdminDashboard() {
    const chartData = Object.keys(counts)
   .sort()
   .map(month => ({ month, events: counts[month] }));
-    console.log("Event counts by month:", counts);
+    // console.log("Event counts by month:", counts);
     setEventsPerMonth(chartData);
   }
 
@@ -122,7 +121,7 @@ export default function AdminDashboard() {
                 <p className="font-medium">{event.title}</p>
                 <p className="text-xs text-gray-500">
                   {event.updatedAt?.toDate
-                    ? new Date(event.updatedAt.toDate()).toLocaleString()
+                    ? new Date(event.updatedAt.toDate()).toLocaleString("en-In")
                     : "No date"}
                 </p>
               </div>

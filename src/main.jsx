@@ -19,6 +19,7 @@ import EventList from "./pages/EventList";
 import EventDetail from "./pages/EventDetail";
 import AttendeeRequests from "./pages/AttendeeRequests";
 import ProfileEdit from "./pages/ProfileEdit";
+import Notifications from "./pages/Notifications";
 
 // Admin Pages
 import AdminRoute from "./components/admin/AdminRoute";
@@ -32,6 +33,7 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminEventDetails from "./pages/admin/AdminEventDetails";
+
 
 
 function RootRedirect(){
@@ -84,6 +86,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <Route path="/events" element={<EventList />} />
               <Route path="/events/:id" element={<EventDetail />} />
               <Route path="/events/:id/attendee-requests" element={<AttendeeRequests />} />
+              <Route path="/notifications" element={<Notifications />} />
             </Route>
 
             <Route element={<AdminRoute />}>

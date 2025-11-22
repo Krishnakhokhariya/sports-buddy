@@ -1,4 +1,4 @@
-import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, serverTimestamp, query, where, getDocs, orderBy , deleteDoc} from "firebase/firestore";
 import { db } from "../firebase";
 
 
@@ -64,3 +64,13 @@ export async function markNotificationAsRead(notificationId) {
   }
 }
 
+export async function deleteNotification(notificationId) {
+  try{
+    const notificationRef = doc(db, "notifications", notificationId);
+    await deleteDoc(notificationRef);
+    console.log(`Notification ${notificationId} deleted successfully.`);
+
+  } catch(err){
+    console.error("Error deleting notification:", err);
+  }
+}
