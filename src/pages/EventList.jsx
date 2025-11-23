@@ -11,6 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
+// import { deletePastEvents } from "../utils/CleanupEvents";
 
 function EventList() {
   const [events, setEvents] = useState([]);
@@ -30,14 +31,18 @@ function EventList() {
     setDateFilter("");
   }
 
-  // Fetch events + sort by upcoming event date
+  // useEffect(() => {
+  //   if (profile?.role === "admin") {
+  //     deletePastEvents();
+  //   }
+  // }, [profile]);
+
   useEffect(() => {
     async function fetchEvents() {
       try {
         const data = await getAllEvents();
 
         if (data && data.length > 0) {
-          
           const sorted = data.sort((a, b) => {
             const dateA = a.dateTime?.seconds || 0;
             const dateB = b.dateTime?.seconds || 0;
@@ -125,7 +130,6 @@ function EventList() {
       </button>
 
       <div className="px-2">
-        
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-4">
           <input
             type="text"
@@ -160,7 +164,6 @@ function EventList() {
           </button>
         </div>
 
-      
         <div className="max-w-4xl mx-auto mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
           {filteredEvents.map((event) => (
             <EventCard key={event.id} event={event} />

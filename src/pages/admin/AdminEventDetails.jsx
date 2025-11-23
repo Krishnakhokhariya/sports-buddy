@@ -10,6 +10,8 @@ import {
 import { db } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { addLog } from "../../utils/logs";
+import usePopup from "../../hooks/usePopup";
+
 import {
   PencilIcon,
   TrashIcon,
@@ -20,6 +22,8 @@ function AdminEventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { showPopup, showConfirm, popupElement } = usePopup();
+
   const [event, setEvent] = useState(null);
   const [creator, setCreator] = useState(null);
   const [attendeeProfiles, setAttendeeProfiles] = useState([]);
@@ -32,10 +36,12 @@ function AdminEventDetails() {
       try {
         const eventRef = doc(db, "events", id);
         const eventSnap = await getDoc(eventRef);
+
         if (!eventSnap.exists()) {
           setEvent(null);
           return;
         }
+
         const evData = { id: eventSnap.id, ...eventSnap.data() };
         setEvent(evData);
 
@@ -52,7 +58,6 @@ function AdminEventDetails() {
 
         for (const docSnap of attendeeDocs.docs) {
           const attendeeUid = docSnap.id;
-
           try {
             const uRef = doc(db, "users", attendeeUid);
             const uSnap = await getDoc(uRef);
@@ -72,15 +77,19 @@ function AdminEventDetails() {
     load();
   }, [id]);
 
+ 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this event? This action cannot be undone."
-      )
-    )
-      setDeleting(true);
+    const confirmed = await showConfirm(
+      "Are you sure you want to delete this event? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    setDeleting(true);
+
     try {
       await deleteDoc(doc(db, "events", id));
+
       try {
         await addLog({
           actorUid: profile?.uid || null,
@@ -94,11 +103,12 @@ function AdminEventDetails() {
       } catch (err) {
         console.warn("Error logging admin event deletion:", err);
       }
-      alert("Event deleted successfully.");
+
+      await showPopup("Event deleted successfully.");
       navigate("/admin/events");
     } catch (err) {
       console.error("Error deleting event:", err);
-      alert("Failed to delete event. Please try again.");
+      await showPopup("Failed to delete event. Please try again.");
     } finally {
       setDeleting(false);
     }
@@ -124,118 +134,127 @@ function AdminEventDetails() {
   );
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-sm">
-      <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
-          >
-            <ArrowLeftIcon className="h-5 w-5" /> Back
-          </button>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-sm text-gray-500">Event</div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
-            {event.title}
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">{event.sport}</p>
+    <>
+      <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-sm">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
+        >
+          <ArrowLeftIcon className="h-5 w-5" /> Back
+        </button>
+
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-sm text-gray-500">Event</div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
+              {event.title}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">{event.sport}</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/admin/events/edit/${id}`)}
+              title="Edit event"
+              className="p-2 rounded text-blue-600 hover:scale-125 transition"
+            >
+              <PencilIcon className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              title="Delete event"
+              className="p-2 rounded text-red-600 hover:scale-125 transition"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="mt-6 grid grid-cols-1 gap-4">
+          <div className="bg-gray-50 rounded p-4">
+            <Row label="Sport" value={event.sport || "-"} />
+            <Row
+              label="Date & Time"
+              value={
+                event.dateTime
+                  ? new Date(event.dateTime.seconds * 1000).toLocaleString()
+                  : "-"
+              }
+            />
+            <Row label="City" value={event.city || "-"} />
+            <Row label="Area" value={event.area || "-"} />
+            <Row label="Skill Level" value={event.skill || "-"} />
+          </div>
 
-          <button
-            onClick={() => navigate(`/admin/events/edit/${id}`)}
-            title="Edit event"
-            className="p-2 rounded text-blue-600 hover:scale-125 transition"
-          >
-            <PencilIcon className="h-5 w-5" />
-          </button>
+          <div className="bg-white rounded p-4 border">
+            <div className="text-sm text-gray-600 font-medium mb-2">
+              Description
+            </div>
+            <div className="text-gray-800 whitespace-pre-wrap">
+              {event.description || "No Description"}
+            </div>
+          </div>
 
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            title="Delete event"
-            className="p-2 rounded  text-red-600 hover:scale-125 transition"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
+          <div className="bg-white rounded p-4 border">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm text-gray-600 font-medium">Attendees</div>
+              <div className="text-xs text-gray-500">
+                {attendeeProfiles.length} joined
+              </div>
+            </div>
+            {attendeeProfiles.length === 0 ? (
+              <div className="text-gray-500"> No attendees yet.</div>
+            ) : (
+              <ul className="list-disc ml-5 space-y-2">
+                {attendeeProfiles.map((attendee) => (
+                  <li key={attendee.uid} className="text-gray-800">
+                    <div className="font-semibold">
+                      {attendee.displayName ||
+                        attendee.name ||
+                        "Anonymous"}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {attendee.city
+                        ? `${attendee.city} • ${attendee.email || ""}`
+                        : attendee.email || ""}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="bg-white rounded p-4 border">
+            <div className="text-sm text-gray-600 font-medium mb-2">Meta</div>
+            <div className="text-gray-700 text-sm">
+              <div>
+                Event ID:
+                <span className="text-xs text-gray-500 ml-2">
+                  {event.id}
+                </span>
+              </div>
+              <div className="mt-1">
+                Created by:
+                <span className="font-medium ml-2">
+                  {creator ? creator.name : "Unknown"}
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                Created at:
+                {event.createdAt
+                  ? new Date(event.createdAt.seconds * 1000).toLocaleString()
+                  : "—"}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4">
-        <div className="bg-gray-50 rounded p-4">
-          <Row label="Sport" value={event.sport || "-"} />
-          <Row
-            label="Date & Time"
-            value={
-              event.dateTime
-                ? new Date(event.dateTime.seconds * 1000).toLocaleString()
-                : "-"
-            }
-          />
-          <Row label="City" value={event.city || "-"} />
-          <Row label="Area" value={event.area || "-"} />
-          <Row label="Skill Level" value={event.skill || "-"} />
-        </div>
-
-        <div className="bg-white rounded p-4 border">
-          <div className="text-sm text-gray-600 font-medium mb-2">
-            Description
-          </div>
-          <div className="text-gray-800 whitespace-pre-wrap">
-            {event.description || "No Description"}
-          </div>
-        </div>
-
-        <div className="bg-white rounded p-4 border">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-sm text-gray-600 font-medium">Attendees</div>
-            <div className="text-xs text-gray-500">
-              {attendeeProfiles.length} joined
-            </div>
-          </div>
-          {attendeeProfiles.length === 0 ? (
-            <div className="text-gray-500"> No attendees yet.</div>
-          ) : (
-            <ul className="list-disc ml-5 space-y-2">
-              {attendeeProfiles.map((attendee) => (
-                <li key={attendee.uid} className="text-gray-800">
-                  <div className="font-semibold">
-                    {attendee.displayName || attendee.name || "Anonymous"}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {attendee.city
-                      ? `${attendee.city} • ${attendee.email || ""}`
-                      : attendee.email || ""}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="bg-white rounded p-4 border">
-          <div className="text-sm text-gray-600 font-medium mb-2">Meta</div>
-          <div className="text-gray-700 text-sm">
-            <div>
-              Event ID:{" "}
-              <span className="text-xs text-gray-500 ml-2">{event.id}</span>
-            </div>
-            <div className="mt-1">
-              Created by:{" "}
-              <span className="font-medium ml-2">
-                {creator ? creator.name : "Unknown"}
-              </span>
-            </div>
-            <div className="mt-1 text-xs text-gray-500">
-              Created at:{" "}
-              {event.createdAt
-                ? new Date(event.createdAt.seconds * 1000).toLocaleString()
-                : "—"}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      
+      {popupElement}
+    </>
   );
 }
 

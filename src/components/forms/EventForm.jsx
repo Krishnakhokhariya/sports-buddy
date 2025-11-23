@@ -84,6 +84,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
   }, [city]);
 
   async function handleSubmit(e = null) {
+    console.log("Submitting event...");
     if(e) e.preventDefault();
     setLoading(true);
 
@@ -157,7 +158,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
 
         <form
           onSubmit={handleSubmit}
-           onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+          //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
           className="max-w-xl mx-auto p-4 flex flex-col space-y-4 bg-white rounded-xl shadow-md"
         >
           <h2 className="text-2xl font-heading text-primary text-center mb-2">
@@ -169,7 +170,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             placeholder="Event Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />
@@ -177,7 +178,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
           <select
             value={sport}
             onChange={(e) => setSport(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           >
@@ -193,7 +194,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             type="datetime-local"
             value={dateTime}
             onChange={(e) => setDateTime(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />
@@ -201,7 +202,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           >
@@ -216,7 +217,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
           <select
             value={area}
             onChange={(e) => setArea(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
             disabled={!city}
@@ -235,7 +236,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
           <select
             value={skill}
             onChange={(e) => setSkill(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
           >
             <option value="">Select skill level</option>
@@ -248,7 +249,7 @@ function EventForm({ existingEvent = null, onSubmitSuccess }) {
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-             onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
+            //  onKeyDown={(e) => handleEnterKey(e, handleSubmit)}
             className="border p-2 rounded focus:ring-2 focus:ring-primary outline-none"
             required
           />

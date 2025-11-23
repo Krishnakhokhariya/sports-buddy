@@ -34,8 +34,6 @@ import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminEventDetails from "./pages/admin/AdminEventDetails";
 
-
-
 function RootRedirect(){
   const {profile, loading} = useAuth();
   if(loading) return <p className="text-center mt-8">Checking session...</p>;

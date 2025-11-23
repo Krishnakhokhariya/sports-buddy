@@ -6,10 +6,12 @@ import { getAreasByCity } from "../utils/areas";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import usePopup from "../hooks/usePopup";
 
 function ProfileEdit() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const {showPopup, popupElement} = usePopup();
 
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
@@ -17,13 +19,14 @@ function ProfileEdit() {
   const [skill, setSkill] = useState("");
   const [selectedSports, setSelectedSports] = useState([]);
 
+
   const [sportsOptions, setSportsOptions] = useState([]);
   const [cities, setCities] = useState([]);
   const [areas, setAreas] = useState([]);
 
   const [initialLoaded, setInitialLoaded] = useState(false);
 
-  // Load dropdown options
+ 
   useEffect(() => {
     async function loadOptions() {
       setSportsOptions(await getAllSports());
@@ -32,7 +35,7 @@ function ProfileEdit() {
     loadOptions();
   }, []);
 
-  // Load USER profile data only once
+ 
   useEffect(() => {
     if (!profile) return;
 
@@ -48,11 +51,11 @@ function ProfileEdit() {
       setSkill(data.skill || "");
       setCity(data.city || "");
       
-      // Handle sports array or comma-separated string
+     
       if (data.sports && Array.isArray(data.sports) && data.sports.length > 0) {
         setSelectedSports(data.sports);
       } else if (data.sportInterest) {
-        // Split comma-separated string into array
+      
         const sportsArray = typeof data.sportInterest === 'string'
           ? data.sportInterest.split(',').map(s => s.trim()).filter(s => s.length > 0)
           : [];
@@ -61,7 +64,7 @@ function ProfileEdit() {
         setSelectedSports([]);
       }
 
-      // Load areas and set selected area properly
+     
       if (data.city) {
         const areaList = await getAreasByCity(data.city);
         setAreas(areaList);
@@ -74,7 +77,7 @@ function ProfileEdit() {
     loadUser();
   }, [profile]);
 
-  // When user manually changes city
+  
   useEffect(() => {
     if (!city) {
       setAreas([]);
@@ -86,10 +89,10 @@ function ProfileEdit() {
       const list = await getAreasByCity(city);
       setAreas(list);
 
-      // If initial load, keep saved area
+     
       if (!initialLoaded) return;
 
-      // If previously selected area does not exist, reset
+      
       if (!list.find((a) => a.name === area)) {
         setArea("");
       }
@@ -100,7 +103,7 @@ function ProfileEdit() {
 
   async function handleSave(e) {
     e.preventDefault();
-    if (!profile) return alert("Login First");
+    if (!profile) return await showPopup("Login First");
 
     const userRef = doc(db, "users", profile.uid);
 
@@ -113,7 +116,7 @@ function ProfileEdit() {
       sportInterest: selectedSports[0] || "",
     });
 
-    alert("Profile updated successfully");
+    await showPopup("Profile updated successfully");
   }
 
   function toggleSport(s) {
@@ -123,6 +126,7 @@ function ProfileEdit() {
   }
 
   return (
+    <>
     <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
       <button
         onClick={() => navigate(-1)}
@@ -140,7 +144,7 @@ function ProfileEdit() {
           className="border p-2 rounded"
         />
 
-        {/* CITY */}
+        
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
@@ -154,7 +158,7 @@ function ProfileEdit() {
           ))}
         </select>
 
-        {/* AREA */}
+       
         <select
           value={area}
           onChange={(e) => setArea(e.target.value)}
@@ -171,7 +175,7 @@ function ProfileEdit() {
           ))}
         </select>
 
-        {/* SPORTS */}
+       
         <div>
           <div className="text-sm text-gray-600 mb-2">Select sports</div>
           <div className="flex flex-wrap gap-2">
@@ -192,7 +196,7 @@ function ProfileEdit() {
           </div>
         </div>
 
-        {/* SKILL */}
+       
         <select
           value={skill}
           onChange={(e) => setSkill(e.target.value)}
@@ -209,6 +213,8 @@ function ProfileEdit() {
         </button>
       </form>
     </div>
+    {popupElement}
+    </>
   );
 }
 

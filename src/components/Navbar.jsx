@@ -93,7 +93,7 @@ function Navbar() {
             </button>
 
             
-            <div className="hidden sm:flex gap-4 items-center">
+            <div className="hidden sm:flex gap-5 items-center">
 
               <Link to="/add-event" className="hover:font-semibold font-medium">
                 Add Event
@@ -102,7 +102,7 @@ function Navbar() {
               <Link to="/events" className="hover:font-semibold font-medium relative">
                 Events
                 {unreadEvents > 0 && (
-                  <span className="ml-1 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
+                  <span className="absolute -top-1 -right-4 ml-1 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
                     {unreadEvents}
                   </span>
                 )}
@@ -145,7 +145,7 @@ function Navbar() {
           >
             Events
             {unreadEvents > 0 && (
-              <span className="absolute top-0 right-0 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
+              <span className="absolute top-2 right-0 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
                 {unreadEvents}
               </span>
             )}

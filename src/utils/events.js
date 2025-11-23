@@ -193,7 +193,7 @@ export async function acceptAttendeeRequest(
     );
   } catch (err) {
     console.error("Error sending notification:", err);
-    // Don't fail the accept operation if notification fails
+   
   }
 
   await addLog({
@@ -216,27 +216,23 @@ export async function rejectAttendeeRequest(eventId, attendeeId, profile, eventT
   const attendeeRef = doc(db, `events/${eventId}/attendees`, attendeeId);
   const eventRef = doc(db, "events", eventId);
 
-  // Check attendee status
+  
   const attendeeSnap = await getDoc(attendeeRef);
   const wasAccepted =
     attendeeSnap.exists() && attendeeSnap.data().status === "accepted";
-
-  // Remove from attendees subcollection
+  
   await deleteDoc(attendeeRef);
 
-  // Remove from attendees array
   await updateDoc(eventRef, {
     attendees: arrayRemove(attendeeId),
   });
 
-  // If previously accepted, remove from accepted list
   if (wasAccepted) {
     await updateDoc(eventRef, {
       accepted: arrayRemove(attendeeId),
     });
   }
 
-  // Send notification to attendee
   try {
     const creatorName = profile.name || profile.displayName || "Event Creator";
 
@@ -256,7 +252,6 @@ export async function rejectAttendeeRequest(eventId, attendeeId, profile, eventT
     console.error("Error sending notification:", err);
   }
 
-  // Log
   await addLog({
     actorUid: profile.uid,
     action: wasAccepted
@@ -276,66 +271,7 @@ export async function rejectAttendeeRequest(eventId, attendeeId, profile, eventT
 }
 
 
-//reject attendee request (event creator only)
-// export async function rejectAttendeeRequest(
-//   eventId,
-//   attendeeId,
-//   profile,
-//   eventTitle = ""
-// ) {
-//   const attendeeRef = doc(db, `events/${eventId}/attendees`, attendeeId);
-//   const eventRef = doc(db, "events", eventId);
-
-//   // Remove from subcollection
-//   await deleteDoc(attendeeRef);
-
-//   // Remove from attendees array
-//   await updateDoc(eventRef, {
-//     attendees: arrayRemove(attendeeId),
-//   });
-
-//   // Send notification to attendee
-//   try {
-//     const attendeeProfileSnap = await getDoc(doc(db, "users", attendeeId));
-//     const attendeeProfile = attendeeProfileSnap.exists()
-//       ? attendeeProfileSnap.data()
-//       : null;
-
-//     const creatorName = profile.name || profile.displayName || "Event Creator";
-
-//     await sendNotification(
-//       attendeeId,
-//       "request_rejected",
-//       "Request Rejected",
-//       `Your request for "${eventTitle}" has been rejected by ${creatorName}`,
-//       {
-//         eventId: eventId,
-//         eventTitle: eventTitle,
-//         creatorName: creatorName,
-//         creatorId: profile.uid,
-//       }
-//     );
-//   } catch (err) {
-//     console.error("Error sending notification:", err);
-//   }
-
-//   await addLog({
-//     actorUid: profile.uid,
-//     action: "rejectAttendeeRequest",
-//     targetCollection: "events",
-//     targetId: eventId,
-//     details: {
-//       attendeeId: attendeeId,
-//       eventTitle: eventTitle || "",
-//     },
-//   });
-
-//   console.log(
-//     `Profile ${profile.uid} rejected attendee ${attendeeId} for event ${eventId}`
-//   );
-// }
-
-//fetch attendee requests with optional status filter
+//fetch attendee requests 
 export async function getEventAttendeeRequests(eventId, statusFilter = null) {
   const attendeesRef = collection(db, `events/${eventId}/attendees`);
   const attendeesSnap = await getDocs(attendeesRef);

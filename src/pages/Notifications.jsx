@@ -7,8 +7,13 @@ import {
 } from "../utils/notifications";
 import { useNavigate } from "react-router-dom";
 
+import {
+  CheckCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
+
 function Notifications() {
-  const { profile } = useAuth()
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +37,7 @@ function Notifications() {
     );
   }
 
-   async function handleDelete(id) {
+  async function handleDelete(id) {
     await deleteNotification(id);
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }
@@ -41,51 +46,70 @@ function Notifications() {
 
   return (
     <div className="max-w-3xl mx-auto w-full bg-white rounded-xl shadow-md p-4 sm:p-6">
-       <button
-            onClick={() => navigate(-1)}
-            className="mb-4 text-blue-600 hover:underline text-sm"
-          >
-            ← Back
-          </button>
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Notifications</h1>
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 text-blue-600 hover:underline text-sm"
+      >
+        ← Back
+      </button>
+
+      <h1 className="text-2xl font-bold mb-4 text-gray-800">
+        Notifications
+      </h1>
 
       {notifications.length === 0 ? (
-        <p className="text-gray-500 text-center py-6">No notifications yet.</p>
+        <p className="text-gray-500 text-center py-6">
+          No notifications yet.
+        </p>
       ) : (
         <div className="space-y-4">
           {notifications.map((n) => (
             <div
               key={n.id}
-              className={`p-4 rounded-lg border ${
+              className={`p-4 rounded-lg border flex justify-between items-start gap-4 ${
                 n.read ? "bg-gray-100" : "bg-yellow-50"
               }`}
             >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                <div>
-                  <h3 className="text-lg font-semibold">{n.title}</h3>
-                  <p className="text-gray-700 mt-1">{n.message}</p>
+              {/* LEFT TEXT SECTION */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold truncate">
+                  {n.title}
+                </h3>
 
-                  {n.data?.eventTitle && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      Event: {n.data.eventTitle}
-                    </p>
-                  )}
-                </div>
+                <p className="text-gray-700 mt-1 break-words">
+                  {n.message}
+                </p>
 
+                {n.data?.eventTitle && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    Event: {n.data.eventTitle}
+                  </p>
+                )}
+              </div>
+
+             
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+
+               
                 {!n.read && (
                   <button
                     onClick={() => handleMarkRead(n.id)}
-                    className="mt-3 sm:mt-0 px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                    title="Mark as Read"
+                    className="p-2 rounded-full bg-green-100 hover:bg-green-200 transition"
                   >
-                    Mark as Read
-                  </button>   
-                )}
-                <button
-                    onClick={() => handleDelete(n.id)}
-                    className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
-                  >
-                    Delete
+                    <CheckCircleIcon className="h-6 w-6 text-green-700" />
                   </button>
+                )}
+
+                
+                <button
+                  onClick={() => handleDelete(n.id)}
+                  title="Delete"
+                  className="p-2 rounded-full bg-red-100 hover:bg-red-200 transition"
+                >
+                  <TrashIcon className="h-6 w-6 text-red-700" />
+                </button>
+
               </div>
             </div>
           ))}

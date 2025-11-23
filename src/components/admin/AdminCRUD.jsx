@@ -4,11 +4,13 @@ import { addLog } from "../../utils/logs"
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import usePopup from "../../hooks/usePopup";
 
 export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteFn }) {
   const { profile } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { showPopup, showConfirm, popupElement } = usePopup();
 
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -63,12 +65,13 @@ export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteF
       setEditingName("");
       load();
     } catch (err) {
-      alert("Operation Failed");
+      await showPopup("Operation Failed");
     }
   };
 
   const handleDelete = async (id, label) => {
-    if (!window.confirm(`Delete '${label}'?`)) return;
+    const confirm = await showConfirm(`Delete '${label}'?`)
+    if (!confirm) return;
     try {
       await deleteFn(id);
       await addLog({
@@ -81,11 +84,12 @@ export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteF
       load();
     } catch (err) {
       console.error(err);
-      alert("Failed to delete");
+      await showPopup("Failed to delete");
     }
   };
 
   return (
+    <>
     <div className="p-4 bg-white rounded shadow">
        <button
         onClick={() => navigate(-1)}
@@ -153,27 +157,13 @@ export default function AdminCRUD({ title, fetchAll, createFn, updateFn, deleteF
                     </button>
                   </div>
 
-              {/* <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setEditingId(item.id);
-                    setEditingName(item.name);
-                  }}
-                  className="text-blue-600 hover:underline"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id, item.name)}
-                  className="text-red-600 hover:underline"
-                >
-                  Delete
-                </button>
-              </div> */}
+            
             </li>
           ))}
         </ul>
       )}
     </div>
+    {popupElement}
+    </>
   );
 }

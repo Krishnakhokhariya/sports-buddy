@@ -3,6 +3,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
 import { handleEnterKey } from "../utils/keypress";
+import usePopup from "../hooks/usePopup";
+
 
 export default function Login() {
   const { login, profile } = useAuth();
@@ -11,6 +13,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const {showPopup, popupElement} = usePopup();
+  
 
   async function handleSubmit(e = null) {
     if(e) e.preventDefault();
@@ -19,10 +23,10 @@ export default function Login() {
 
     try {
       await login(email, password);
-      alert("Logged in successfully!");
       
     } catch (err) {
-      setError("Invalid email or password");
+      await showPopup("Invalid email or password")
+      // setError("Invalid email or password");
     }
     setLoading(false);
   }
@@ -38,6 +42,7 @@ export default function Login() {
   }, [profile, navigate]);
 
   return (
+    <>
     <AuthCard
       title="Welcome back"
       subtitle="Sign in to find local Games and Teammates"
@@ -86,5 +91,7 @@ export default function Login() {
         </div>
       </form>
     </AuthCard>
+      {popupElement}
+    </>
   );
 }

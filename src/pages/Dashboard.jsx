@@ -13,6 +13,7 @@ import {
 import { db } from "../firebase";
 import EventCard from "../components/EventCard";
 import { useNavigate } from "react-router-dom";
+//import { deletePastEvents } from "../utils/CleanupEvents";
 
 export default function Dashboard() {
   const { profile, loading } = useAuth();
@@ -23,12 +24,17 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("created");
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   if (profile?.role === "admin") {
+  //     deletePastEvents();
+  //   }
+  // }, [profile]);
+
   useEffect(() => {
     async function fetchData() {
       if (!profile) return;
 
       try {
-       
         const createdQuery = query(
           collection(db, "events"),
           where("createdBy", "==", profile.uid)
@@ -87,101 +93,97 @@ export default function Dashboard() {
     );
 
   return (
-  <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6 relative">
+    <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6 relative">
+      <h1 className="text-2xl font-bold text-primary mb-4 text-center sm:text-left">
+        Welcome, {profile.name}
+      </h1>
 
-    <h1 className="text-2xl font-bold text-primary mb-4 text-center sm:text-left">
-      Welcome, {profile.name}
-    </h1>
+      {/* Responsive Tabs */}
+      <div className="flex flex-wrap justify-center gap-2 w-full">
+        <button
+          onClick={() => setActiveTab("created")}
+          className={`px-6 py-2 font-medium rounded-md transition ${
+            activeTab === "created"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Created
+        </button>
 
-    {/* Responsive Tabs */}
-    <div className="flex flex-wrap justify-center gap-2 w-full">
-      <button
-        onClick={() => setActiveTab("created")}
-        className={`px-6 py-2 font-medium rounded-md transition ${
-          activeTab === "created"
-            ? "bg-primary text-white"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }`}
-      >
-        Created
-      </button>
+        <button
+          onClick={() => setActiveTab("pending")}
+          className={`px-6 py-2 font-medium rounded-md transition ${
+            activeTab === "pending"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Pending
+        </button>
 
-      <button
-        onClick={() => setActiveTab("pending")}
-        className={`px-6 py-2 font-medium rounded-md transition ${
-          activeTab === "pending"
-            ? "bg-primary text-white"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }`}
-      >
-        Pending
-      </button>
+        <button
+          onClick={() => setActiveTab("joined")}
+          className={`px-6 py-2 font-medium rounded-md transition ${
+            activeTab === "joined"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Joined
+        </button>
+      </div>
 
-      <button
-        onClick={() => setActiveTab("joined")}
-        className={`px-6 py-2 font-medium rounded-md transition ${
-          activeTab === "joined"
-            ? "bg-primary text-white"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-        }`}
-      >
-        Joined
-      </button>
-    </div>
+      <h1 className="text-xl text-primary font-bold text-center">
+        {activeTab === "created"
+          ? "My Created Events"
+          : activeTab === "pending"
+          ? "Pending Requests"
+          : "My Joined Events"}
+      </h1>
 
-   
-    <h1 className="text-xl text-primary font-bold text-center">
-      {activeTab === "created"
-        ? "My Created Events"
-        : activeTab === "pending"
-        ? "Pending Requests"
-        : "My Joined Events"}
-    </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {activeTab === "created" &&
+          (createdEvents.length > 0 ? (
+            createdEvents.map((e) => <EventCard key={e.id} event={e} />)
+          ) : (
+            <p className="col-span-full text-center text-gray-500">
+              No created events.
+            </p>
+          ))}
 
-   
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      {activeTab === "created" &&
-        (createdEvents.length > 0 ? (
-          createdEvents.map((e) => <EventCard key={e.id} event={e} />)
-        ) : (
-          <p className="col-span-full text-center text-gray-500">
-            No created events.
-          </p>
-        ))}
+        {activeTab === "pending" &&
+          (pendingEvents.length > 0 ? (
+            pendingEvents.map((e) => <EventCard key={e.id} event={e} />)
+          ) : (
+            <p className="col-span-full text-center text-gray-500">
+              No pending requests.
+            </p>
+          ))}
 
-      {activeTab === "pending" &&
-        (pendingEvents.length > 0 ? (
-          pendingEvents.map((e) => <EventCard key={e.id} event={e} />)
-        ) : (
-          <p className="col-span-full text-center text-gray-500">
-            No pending requests.
-          </p>
-        ))}
+        {activeTab === "joined" &&
+          (joinedEvents.length > 0 ? (
+            joinedEvents.map((e) => <EventCard key={e.id} event={e} />)
+          ) : (
+            <p className="col-span-full text-center text-gray-500">
+              No joined events.
+            </p>
+          ))}
+      </div>
 
-      {activeTab === "joined" &&
-        (joinedEvents.length > 0 ? (
-          joinedEvents.map((e) => <EventCard key={e.id} event={e} />)
-        ) : (
-          <p className="col-span-full text-center text-gray-500">
-            No joined events.
-          </p>
-        ))}
-    </div>
-
-    {/* Floating Add Event Button (only for created tab) */}
-    {activeTab === "created" && (
-      <button
-        onClick={() => navigate("/add-event")}
-        className="fixed bottom-12 right-6 w-14 h-14 rounded-full 
+      {/* Floating Add Event Button (only for created tab) */}
+      {activeTab === "created" && (
+        <button
+          onClick={() => navigate("/add-event")}
+          className="fixed bottom-12 right-6 w-14 h-14 rounded-full 
                    bg-blue-600 text-white text-4xl leading-none 
                    flex items-center justify-center 
                    shadow-xl hover:bg-blue-700 transition-all"
-        title="Add Event"
-      >
-        +
-      </button>
-    )}
-  </div>
-);
-
+          title="Add Event"
+        >
+          +
+        </button>
+      )}
+    </div>
+  );
 }
