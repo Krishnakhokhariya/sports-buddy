@@ -35,15 +35,17 @@ function AdminLogs() {
   useEffect(() => {
     if (selectedAction === "all") {
       setFilteredLogs(logs);
-    } else if (selectedAction === "join") {
-      setFilteredLogs(
-        logs.filter((l) => l.action?.toLowerCase().includes("join"))
-      );
-    } else if (selectedAction === "leave") {
-      setFilteredLogs(
-        logs.filter((l) => l.action?.toLowerCase().includes("leave"))
-      );
-    } else {
+    }
+    // } else if (selectedAction === "join") {
+    //   setFilteredLogs(
+    //     logs.filter((l) => l.action?.toLowerCase().includes("join"))
+    //   );
+    // } else if (selectedAction === "leave") {
+    //   setFilteredLogs(
+    //     logs.filter((l) => l.action?.toLowerCase().includes("leave"))
+    //   );
+    // } 
+    else {
       setFilteredLogs(
         logs.filter((l) => l.action?.toLowerCase().includes(selectedAction))
       );
@@ -58,8 +60,8 @@ function AdminLogs() {
     if (action.includes("create")) return "text-green-600 font-semibold";
     if (action.includes("update")) return "text-yellow-600 font-semibold";
     if (action.includes("login")) return "text-blue-600 font-semibold";
-    if (action.includes("join")) return "text-purple-600 font-semibold";
-    if (action.includes("leave")) return "text-orange-600 font-semibold";
+    // if (action.includes("join")) return "text-purple-600 font-semibold";
+    // if (action.includes("leave")) return "text-orange-600 font-semibold";
     return "text-gray-700";
   }
 
@@ -89,8 +91,8 @@ function AdminLogs() {
           <option value="create">Create</option>
           <option value="update">Update</option>
           <option value="delete">Delete</option>
-          <option value="join">Join Event</option>
-          <option value="leave">Leave Event</option>
+          {/* <option value="join">Join Event</option>
+          <option value="leave">Leave Event</option> */}
         </select>
       </div>
 
