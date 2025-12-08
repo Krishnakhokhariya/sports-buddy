@@ -72,7 +72,7 @@ function Navbar() {
               <BellIcon className="h-7 w-7 hover:scale-105 transition" />
 
               {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-2 px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full">
+                <span className="absolute -top-2 right-0 translate-x-3 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
                   {unreadNotifications}
                 </span>
               )}
@@ -102,7 +102,7 @@ function Navbar() {
               <Link to="/events" className="hover:font-semibold font-medium relative">
                 Events
                 {unreadEvents > 0 && (
-                  <span className="absolute -top-1 -right-4 ml-1 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
+                  <span className="absolute -top-2 right-0 translate-x-3 px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
                     {unreadEvents}
                   </span>
                 )}

@@ -52,6 +52,8 @@ Repository: https://github.com/Krishnakhokhariya/sports-buddy
   - Events
 - Manage all event requests and logs
 - Admin is manually added 
+(email: sportbuddy_admin@gmil.com,
+password: SportBuddyAdmin@123)
 
 ---
 ## Tech Stack
