@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // SIGN UP
+  
 
   async function signup(name, email, password, sportInterest = "", city="", skill="", area="") {
     const userCred = await createUserWithEmailAndPassword(
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
     );
     const uid = userCred.user.uid;
 
-    // Split comma-separated sports into array
+    
     const sportsArray = sportInterest 
       ? sportInterest.split(',').map(s => s.trim()).filter(s => s.length > 0)
       : [];
@@ -49,7 +49,6 @@ export function AuthProvider({ children }) {
     return userCred;
   }
 
-  // LOGIN
 
   async function login(email, password) {
     const cred = await signInWithEmailAndPassword(auth, email, password);
@@ -72,7 +71,7 @@ export function AuthProvider({ children }) {
   const logout = () => signOut(auth);
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
-  // LOAD AUTH + PROFILE
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
