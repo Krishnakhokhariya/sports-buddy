@@ -4,7 +4,8 @@ SportsBuddy is a web application that helps users discover local sports events, 
 
 ---
 ## Live Demo
-Repository: https://github.com/Krishnakhokhariya/sports-buddy
+Live on: https://find-sport-buddy.netlify.app/ 
+Repository: https://github.com/Krishnakhokhariya/sports-buddy.git
 
 ---
 ## Features
